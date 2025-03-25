@@ -4,33 +4,34 @@ import sys
 
 def main():
     mount_dir = "/tmp/$USER/mount"
-    test_file = os.path.join(mount_dir, "fsync_write_read_test.txt")
-    server_file = os.path.join("/tmp", os.environ.get("USER"), "server", "fsync_write_read_test.txt")
+    test = os.path.join(mount_dir, "fsync_write_read_test.txt")
+    server = os.path.join("/tmp", os.environ.get("USER"), "server", "fsync_write_read_test.txt")
 
     cont = "text" * 20
 
     try:
-        fd = os.open(test_file, os.O_WRONLY| os.O_CREAT)
+        fd = os.open(test, os.O_WRONLY| os.O_CREAT)
         bytes_written = os.write(fd, cont.encode())
     
         try:
             os.fsync(fd)
-            print("fsync successful")
+            print("fsync was successful!")
         except OSError as e:
-            print(f"fsync failed with error: {e}")
+            print(f"fsync failed w error: {e}")
     
         os.close(fd)
-        # doing the length check after close
-        with open(server_file, 'r') as f:
+
+        with open(server
+, 'r') as f:
             server_content = f.read()
-            print(f"\nServer file content length: {len(server_content)}")
-            assert len(server_content) == len(test_content), f"Server file length mismatch: expected {len(test_content)}, got {len(server_content)}"
+            print(f"\nlength of server file {len(server_content)}")
+            assert len(server_content) == len(cont), f"there is length mismatch: expected {len(cont)}, actual {len(server_content)}"
         
-        read_fd = os.open(test_file, os.O_RDONLY)
+        read_fd = os.open(test, os.O_RDONLY)
         data = os.read(read_fd, 1000)
         os.close(read_fd)
         print(f"Read {len(data)} bytes from file")
-        assert len(data) == len(test_content), f"Expected to read {len(test_content)} bytes, but read {len(data)}"
+        assert len(data) == len(cont), f"Expected to read {len(cont)} bytes, actual {len(data)}"
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
