@@ -1,0 +1,28 @@
+import os
+import sys
+import time
+import stat
+
+# Constants
+MOUNT_PATH = "/tmp/$USER/mount"
+FILE_NAME = "append_test.txt"
+FILE_PATH = os.path.join(MOUNT_PATH, FILE_NAME)
+BLOCK_SIZE = 4096
+NUM_BLOCKS = 3
+EXPECTED_SIZE = BLOCK_SIZE * NUM_BLOCKS  # 12288 bytes
+
+fd = os.open(FILE_PATH, os.O_RDWR | os.O_CREAT, 0o644)
+
+for i in range(NUM_BLOCKS):
+    block_data = f"Block {i+1} data: ".encode()
+    padding = b'X' * (BLOCK_SIZE - len(block_data))
+    data = block_data + padding
+    bytes_written = os.write(fd, data)
+
+os.close(fd)
+
+stat_result = os.stat(FILE_PATH)
+file_size = stat_result.st_size
+
+print(f"File {FILE_PATH} created with {NUM_BLOCKS} blocks of {BLOCK_SIZE} bytes each.")
+print(f"File size: {file_size} bytes")
